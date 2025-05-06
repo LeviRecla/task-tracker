@@ -1,4 +1,6 @@
 .env
-/venv
+/task-tracker-api/venv
 __pycache__
 /instance
+/task-tracker-api/instance
+/venv

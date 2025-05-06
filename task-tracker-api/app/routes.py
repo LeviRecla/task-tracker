@@ -18,21 +18,55 @@ def get_tasks():
 @task_bp.route("/", methods=["POST"])
 def create_task():
     data = request.json
-    new_task = Task(title=data["title"], description=data.get("description", ""))
+
+    # Validate title
+    if not data or "title" not in data or not data["title"].strip():
+        return jsonify({"error": "Title is required."}), 400
+
+    # Validate status if provided
+    valid_statuses = ["todo", "in-progress", "done"]
+    status = data.get("status", "todo")
+    if status not in valid_statuses:
+        return jsonify({"error": f"Invalid status. Choose from {valid_statuses}."}), 400
+
+    new_task = Task(
+        title=data["title"].strip(),
+        description=data.get("description", "").strip(),
+        status=status
+    )
+
     db.session.add(new_task)
     db.session.commit()
+
     return jsonify({"message": "Task created"}), 201
+
 
 # PUT route to create a task
 @task_bp.route("/<int:task_id>", methods=["PUT"])
 def update_task(task_id):
     task = Task.query.get_or_404(task_id)
     data = request.json
+
+    if not data:
+        return jsonify({"error": "No update data provided."}), 400
+
+    # Validate title if updating
+    if "title" in data and not data["title"].strip():
+        return jsonify({"error": "Title cannot be empty."}), 400
+
+    # Validate status
+    if "status" in data:
+        valid_statuses = ["todo", "in-progress", "done"]
+        if data["status"] not in valid_statuses:
+            return jsonify({"error": f"Invalid status. Choose from {valid_statuses}."}), 400
+
     task.title = data.get("title", task.title)
     task.description = data.get("description", task.description)
     task.status = data.get("status", task.status)
+
     db.session.commit()
-    return jsonify({"message": "Task updated"})
+    return jsonify({"message": "Task updated"}), 200
+
 
 # DELETE route to delete a task
 @task_bp.route("/<int:task_id>", methods=["DELETE"])
