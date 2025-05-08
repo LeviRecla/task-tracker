@@ -19,11 +19,9 @@ def get_tasks():
 def create_task():
     data = request.json
 
-    # Validate title
     if not data or "title" not in data or not data["title"].strip():
         return jsonify({"error": "Title is required."}), 400
 
-    # Validate status if provided
     valid_statuses = ["todo", "in-progress", "done"]
     status = data.get("status", "todo")
     if status not in valid_statuses:
@@ -38,7 +36,13 @@ def create_task():
     db.session.add(new_task)
     db.session.commit()
 
-    return jsonify({"message": "Task created"}), 201
+    return jsonify({
+        "id": new_task.id,
+        "title": new_task.title,
+        "description": new_task.description,
+        "status": new_task.status
+    }), 201
+
 
 
 # PUT route to create a task

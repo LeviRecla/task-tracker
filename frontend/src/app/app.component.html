@@ -1,9 +1,11 @@
-<div class="app-container">
-  <h1>Task Tracker</h1>
-  <app-task-list></app-task-list>
+<h1>Task Tracker</h1>
+<app-task-list [tasks]="tasks"></app-task-list>
 
-  <!-- ✅ Floating Add Task Button -->
-  <button mat-fab color="primary" class="add-task-btn" (click)="onAddTask()">
-    +
-  </button>
-</div>
+<button
+  mat-fab
+  color="primary"
+  class="add-task-btn"
+  (click)="onAddTask()"
+>
+  +
+</button>

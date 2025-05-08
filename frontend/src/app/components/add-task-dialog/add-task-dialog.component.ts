@@ -6,6 +6,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { TaskService, Task } from '../../services/task.service';
+import { MatDialogRef } from '@angular/material/dialog';
+
 
 @Component({
   selector: 'app-add-task-dialog',
@@ -25,19 +28,32 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 export class AddTaskDialogComponent {
   taskForm: FormGroup;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    private taskService: TaskService,
+    private dialogRef: MatDialogRef<AddTaskDialogComponent>
+  ) {
     this.taskForm = this.fb.group({
       title: ['', Validators.required],
       description: [''],
       status: ['todo', Validators.required]
     });
   }
+  
 
   onSubmit(): void {
     if (this.taskForm.valid) {
-      console.log('Task submitted:', this.taskForm.value);
-      // TODO: emit data, save to backend, close dialog
+      this.taskService.addTask(this.taskForm.value).subscribe({
+        next: (newTask: Task) => {
+          console.log('Task created on backend:', newTask);
+          this.dialogRef.close(newTask); // ✅ Send new task back to AppComponent
+        },
+        error: (error) => {
+          console.error('Failed to create task:', error);
+        }
+      });
     }
   }
+  
 }
 
